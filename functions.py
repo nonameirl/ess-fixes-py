@@ -14,7 +14,6 @@ def filecount(y_pdf, path='.'):
 
 
 def get_location(zipf):
-    print(zipf)
     try:
         filename = 'Readme.txt'
 
@@ -26,18 +25,18 @@ def get_location(zipf):
                         for name2 in zfile2.namelist():
                             if name2 == filename:
                                 readme = zfile2.read(filename)
-        location_data = BeautifulSoup(readme, "html.parser").prettify(formatter=None).splitlines()[8]
+        location_data = BeautifulSoup(readme, "html.parser").prettify().splitlines()[8]
         da = re.split("[/|:|\n]", location_data)
         location = constants.Location(rmdigit(da[2]), da[3])
         assert location.county is not None and 'ElectionWare' not in location.county
     except IOError:
-        print("Unable to open Readme.txt")
+        print(" Unable to open Readme.txt")
     except AssertionError:
-        print("Location missing from ESS data")
+        print(" Location missing from ESS data")
     else:
-        print("Found location data")
-        print("County: ", location.county)
-        print("State: ", location.state)
+        print(" Found election data for:")
+        print(" County: ", location.county.title())
+        print(" State:  ", location.state.title())
 
 
 def create_dir(data_wd, dir_name, overwrite=bool):
