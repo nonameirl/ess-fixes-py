@@ -19,3 +19,7 @@ import random
 import string
 from constants import *
 from functions import *
+import codecs
+import html
+from bs4 import BeautifulSoup
+from io import BytesIO, TextIOWrapper, BufferedReader

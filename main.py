@@ -2,16 +2,16 @@ from myimports import *
 
 x_pdf = "r'*'"
 
+print('a')
 if (filecount('*.zip') == 1 and filecount('*.pdf') <= 1) or \
         (filecount('*.zip') > 1 and filecount('*2D*.pdf') is False):
-
-    # print("________________________________________")
+    print("________________________________________")
 
     for my_zip in glob.glob('*.zip'):
         print("________________________________________")
 
-        # print(my_zip)
-        # print(Path(my_zip))
+        print(my_zip)
+        print(Path(my_zip))
 
         data_dir = Path(my_zip).stem
         data_wd = EXTRACT_DIR.joinpath(data_dir)
@@ -59,7 +59,7 @@ if (filecount('*.zip') == 1 and filecount('*.pdf') <= 1) or \
 
         zip_obj.close()
 
-
+'''
             def mn_data_fix():
 
                 # DATA CRUNCHING AND COMPARISON SECTION #
@@ -114,6 +114,7 @@ if (filecount('*.zip') == 1 and filecount('*.pdf') <= 1) or \
                     zipF.write(Path(data_wd, file), Path(file), compress_type=zipfile.ZIP_DEFLATED)
                 for file in file_list2:
                     zipF.write(Path(import_dir, file), Path(import_dir.name, file), compress_type=zipfile.ZIP_DEFLATED)
+'''
 '''
             if Path(z_dir + '_fixed.zip'):
                 print('\n    Files have been compressed')

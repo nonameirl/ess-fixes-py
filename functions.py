@@ -1,12 +1,10 @@
 # functions.py
-import shutil
-import zipfile
 from glob import glob
 
 import constants
-
 from myimports import *
-
+from io import BytesIO
+from bs4 import BeautifulSoup
 
 # Function to check how many files with defined extension exist in the directory
 
@@ -15,17 +13,22 @@ def filecount(y_pdf, path='.'):
     return len(fnmatch.filter(os.listdir(path), y_pdf))
 
 
-def get_location(data_wd, folder=None, overwrite=False):
+def get_location(zipf):
+    print(zipf)
     try:
-        if folder is None:
-            ext_folder = extract_zip(data_wd, BOD_ZIP, overwrite)
-        else:
-            ext_folder = data_wd.joinpath(folder)
-        f = open(data_wd.joinpath(ext_folder, README_FILE))
-        spl = str(f.readlines()[8])
-        f.close()
-        da = re.split("[/|:|\n]", spl)
-        location = Location(rmdigit(da[2]), da[3])
+        filename = 'Readme.txt'
+
+        with zipfile.ZipFile(zipf, 'r') as zfile:
+            for name in zfile.namelist():
+                if re.search(r'\.ezip$', name) is not None:
+                    zfiledata = BytesIO(zfile.read(name))
+                    with zipfile.ZipFile(zfiledata) as zfile2:
+                        for name2 in zfile2.namelist():
+                            if name2 == filename:
+                                readme = zfile2.read(filename)
+        location_data = BeautifulSoup(readme, "html.parser").prettify(formatter=None).splitlines()[8]
+        da = re.split("[/|:|\n]", location_data)
+        location = constants.Location(rmdigit(da[2]), da[3])
         assert location.county is not None and 'ElectionWare' not in location.county
     except IOError:
         print("Unable to open Readme.txt")
@@ -82,16 +85,17 @@ def mv_import(data_wd):
         return import_folder
 
 
-def extract_zip(wd_folder, a_zip, overwrite=False):
+def extract_zip(wd_folder, a_zip, overwrite=bool(False)):
     zip_path = wd_folder.joinpath(a_zip)
     zip_folder = zip_path.stem
+    print(wd_folder, a_zip)
 
     i = 0
     for i in range(2):
         i = +1
         try:
             zi = zipfile.ZipFile(zip_path)
-            zip_folder = create_dir(wd_folder, zip_folder, overwrite)
+            zip_folder = create_dir(wd_folder, zip_folder, type(overwrite))
             zi.extractall(wd_folder.joinpath(zip_folder))
             zi.close()
             return zip_folder
@@ -153,7 +157,7 @@ def custompdf(l_pdf, path='.'):
         else:
             print("    There can only be 1 .pdf for every .zip")
             input("\n    Press Enter to exit...\n")
-            input * ()
+            input() * ()
             # sys.exit(1)
         x += 1
     return 0

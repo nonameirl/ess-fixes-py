@@ -16,6 +16,7 @@ BOD_ZIP = Path("BallotOnDemand_Export.ezip")
 README_FILE = "Readme.txt"
 
 
+
 class Location:
     def __init__(self, county, state):
         self.state = state
