@@ -1,10 +1,30 @@
 # functions.py
-from glob import glob
-
+import builtins
+import os
+import sys
+import re
+from pathlib import Path
+import glob
+import pandas as pd
+import shutil
+import zipfile
+import time
+import pikepdf
+from halo import Halo
+from pikepdf import Pdf
+from pdfCropMargins import crop
+import fnmatch
+import random
+import string
+import glob
+import pathlib
 import constants
-from myimports import *
-from io import BytesIO
+from constants import *
+from functions import *
+import codecs
+import html
 from bs4 import BeautifulSoup
+from io import BytesIO, TextIOWrapper, BufferedReader
 
 # Function to check how many files with defined extension exist in the directory
 
@@ -37,12 +57,13 @@ def get_location(zipf):
         print(" Found election data for:")
         print(" County: ", location.county.title())
         print(" State:  ", location.state.title())
+        return location.state.title()
 
 
 def create_dir(data_wd, dir_name, overwrite=bool):
     try:
         data_wd.joinpath(dir_name).mkdir(parents=True, exist_ok=(not overwrite))
-        return dir_name
+        return Path(dir_name)
     except IOError:
         # print("Unable to create folder. Creating a new folder with random name.")
         random_folder = ''.join(random.choice(string.ascii_lowercase) for i in range(5))
@@ -66,22 +87,21 @@ def numb():
             pass
 
 
-def mv_import(data_wd):
+def mv_import(data_wd, overwrite=True):
     try:
         # Create Import folder in current directory
         if filecount('*.txt', str(data_wd)):
-            import_folder = create_dir(data_wd, IMPORT_DIR)
+            import_folder = create_dir(data_wd, IMPORT_DIR, overwrite)
             # Copy files in current folder with *.txt to Import folder
-            for src_file in data_wd.joinpath(glob('*.txt')):
-                shutil.copy(src_file, import_folder)
+            for src_file in data_wd.glob('*.txt'):
+                shutil.copy(src_file, data_wd.joinpath(import_folder))
+            print(" Copied *.txt to", import_folder)
             return import_folder
         else:
-            return print("No .txt files to move")
-    except IOError:
-        print("Unable to copy import files to folder.")
-    else:
-        print("Import files copied to ", import_folder)
-        return import_folder
+            return print(" No .txt files to move")
+    except shutil.SameFileError:
+        return print(" Unable to copy import files to folder.")
+
 
 
 def extract_zip(wd_folder, a_zip, overwrite=bool(False)):
@@ -138,12 +158,6 @@ def getmultipath(x):
         print(getpath(files))
     else:
         pass
-
-
-def print_loc(dal):
-    print(dal[2][0])
-    print(f"{dal[0]}:\t{dal[2]}")
-    print(f"{dal[1]}:\t{dal[3]}")
 
 
 def custompdf(l_pdf, path='.'):
